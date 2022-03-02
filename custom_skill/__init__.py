@@ -41,7 +41,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         except ValueError:
             pass
         else:
-            content = req_body['content']
+            keys=list(req_body.keys())
+            keys=keys[0]
+            content = req_body[keys]
 
     if content:
         noun_phrases=get_noun_phrases(content)
