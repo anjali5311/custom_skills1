@@ -10,7 +10,7 @@ nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('maxent_ne_chunker')
 nltk.download('words')
-
+#sample
 def get_noun_phrases(text, chunk_func=ne_chunk):
     continuous_chunk=[]
     if isinstance(text,str):
