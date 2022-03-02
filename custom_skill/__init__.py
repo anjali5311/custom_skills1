@@ -53,12 +53,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             print(values)
             
     except Exception as e:
-            return func.HttpResponse(outputs,status_code=404)
+            return func.HttpResponse(json.dumps(outputs),mimetype="application/json",status_code=404)
 
     outputs={'values':[]}
     for item in values:
         try:
             item_results={'recordId':-1,'data':dict(),'errors':[],"warnings":None}
+            assert 'recordId' in item.keys()
             item_results['recordId']=item['recordId']
             assert 'data' in item.keys()
             content = item['data']['content']
@@ -69,7 +70,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             item_results['errors']={'messages':str(e)}
         outputs['values'].append(item_results)
 
-    return func.HttpResponse(outputs,status_code=200)
-            
-
-    
+    return func.HttpResponse(json.dumps(outputs),mimetype="application/json",status_code=200)
