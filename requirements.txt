@@ -4,4 +4,4 @@
 
 azure-functions
 nltk
-func
+numpy
