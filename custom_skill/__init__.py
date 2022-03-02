@@ -10,7 +10,19 @@ nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('maxent_ne_chunker')
 nltk.download('words')
-#sample
+
+"""
+{
+    "values": [
+      {
+        "recordId": "0",
+        "data":
+           {
+             "content": "This is sample text",
+           }
+      }
+}"""
+
 def get_noun_phrases(text, chunk_func=ne_chunk):
     continuous_chunk=[]
     if isinstance(text,str):
@@ -33,18 +45,31 @@ def get_noun_phrases(text, chunk_func=ne_chunk):
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     # {'content':'this is sample text'}
-    logging.info('Python HTTP trigger function processed a request.')
-    content = req.params.get('content')
-    if not content:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            content = req_body['content']
 
-    if content:
-        noun_phrases=get_noun_phrases(content)
-        return func.HttpResponse(json.dumps({'noun_phrases':noun_phrases}),status_code=200)
-    else:
-        return func.HttpResponse(json.dumps({'noun_phrases':[]}),status_code=404)
+    try:
+            
+            req_body = req.get_json()
+            values=req_body.get('values')
+            print(values)
+            
+    except Exception as e:
+            return func.HttpResponse(json.dumps(outputs),status_code=404)
+
+    outputs={'values':[]}
+    for item in values:
+        try:
+            item_results={'recordId':-1,'data':dict(),'errors':[],"warnings":None}
+            item_results['recordId']=item['recordId']
+            assert 'data' in item.keys()
+            content = item['data']['content']
+            assert content != None
+            noun_phrases=get_noun_phrases(content)
+            item_results['data']['noun_phrases']=noun_phrases
+        except Exception as e:
+            item_results['errors']={'messages':str(e)}
+        outputs['values'].append(item_results)
+
+    return func.HttpResponse(json.dumps(outputs),status_code=200)
+            
+
+    
