@@ -66,7 +66,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             assert content != None
             noun_phrases=get_noun_phrases(content)
             item_results['data']['noun_phrases']=noun_phrases
-            item_results['data']['email_metadata']={"noun_phrases":noun_phrases}
+            item_results['data']['email_metadata']={"noun_phrases":noun_phrases,"noun":noun_phrases}
         except Exception as e:
             item_results['errors']={'messages':str(e)}
         outputs['values'].append(item_results)
