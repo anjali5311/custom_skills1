@@ -11,18 +11,8 @@ nltk.download('averaged_perceptron_tagger')
 nltk.download('maxent_ne_chunker')
 nltk.download('words')
 
-"""
-{
-    "values": [
-      {
-        "recordId": "0",
-        "data":
-           {
-             "content": "This is sample text",
-           }
-      }
-}"""
 
+#Function to extract nouns from a given content
 def get_noun_phrases(text, chunk_func=ne_chunk):
     continuous_chunk=[]
     if isinstance(text,str):
@@ -44,7 +34,7 @@ def get_noun_phrases(text, chunk_func=ne_chunk):
     return continuous_chunk
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    # {'content':'this is sample text'}
+    # refer the link to see the input schema https://docs.microsoft.com/en-us/azure/search/cognitive-search-custom-skill-web-api#sample-input-json-structure
 
     try:
             
@@ -54,7 +44,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             
     except Exception as e:
             return func.HttpResponse(json.dumps(outputs),mimetype="application/json",status_code=404)
-
+    
+    # refer to see this output schema https://docs.microsoft.com/en-us/azure/search/cognitive-search-custom-skill-web-api#sample-output-json-structure
+    # The response should follow the format mentioned in the above link
     outputs={'values':[]}
     for item in values:
         try:
@@ -62,11 +54,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             assert 'recordId' in item.keys()
             item_results['recordId']=item['recordId']
             assert 'data' in item.keys()
-            content = item['data']['content']
+            content = item['data']['content'] 
             assert content != None
-            noun_phrases=get_noun_phrases(content)
-            item_results['data']['noun_phrases']=noun_phrases
-            item_results['data']['email_metadata']={"noun_phrases":noun_phrases,"noun":noun_phrases}
+            noun_phrases=get_noun_phrases(content) #calls the function to get the nouns from the given content
+            
+            item_results['data']['noun_phrases']=noun_phrases 
+            #The 'noun_phrases' key name has to match with 'names' key-value mentioned in skillset definition 
+            
+            item_results['data']['email_metadata']={"noun_phrases":noun_phrases,"noun":noun_phrases} 
+            #The 'email_metadata' key name has to match with the 'names' key-value mentioned in the skillset definition. 
+            #Also the key names 'noun_phrases','noun' in the dictionary has to match with the sub-field names of the main field email_metadata as defined while indexing.
+            
         except Exception as e:
             item_results['errors']={'messages':str(e)}
         outputs['values'].append(item_results)
